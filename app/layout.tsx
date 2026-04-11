@@ -14,12 +14,11 @@ export const metadata: Metadata = {
     'free currency api',
     '@allratestoday/sdk',
   ],
-  metadataBase: new URL('https://currency-converter.allratestoday.com'),
+  metadataBase: new URL('https://allratestoday.com'),
   openGraph: {
     title: 'Live Currency Converter — @allratestoday/sdk',
     description: 'Live mid-market exchange rates for 160+ currencies.',
     type: 'website',
-    url: 'https://currency-converter.allratestoday.com',
     siteName: 'AllRatesToday Currency Converter',
   },
   twitter: {
