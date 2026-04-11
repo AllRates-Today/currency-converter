@@ -1,0 +1,231 @@
+:root {
+  --brand: #0f5f3a;
+  --brand-light: #25a557;
+  --bg: #f5f9f6;
+  --card: #ffffff;
+  --text: #0f172a;
+  --muted: #64748b;
+  --border: #e2e8f0;
+  --error: #dc2626;
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+    Ubuntu, Cantarell, sans-serif;
+  background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 50%, #f0f9ff 100%);
+  color: var(--text);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+main {
+  min-height: 100vh;
+  padding: 4rem 1.5rem 3rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+}
+
+.hero {
+  text-align: center;
+  max-width: 640px;
+}
+
+.hero-badge {
+  display: inline-block;
+  background: rgba(15, 95, 58, 0.08);
+  color: var(--brand);
+  padding: 0.35rem 1rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  letter-spacing: 0.02em;
+}
+
+.hero h1 {
+  font-size: clamp(1.75rem, 4vw, 2.75rem);
+  font-weight: 800;
+  margin: 0 0 0.75rem;
+  line-height: 1.15;
+}
+
+.hero h1 .accent {
+  color: var(--brand);
+}
+
+.hero p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 1.05rem;
+  line-height: 1.6;
+}
+
+.card {
+  width: 100%;
+  max-width: 520px;
+  background: var(--card);
+  border-radius: 20px;
+  box-shadow: 0 10px 40px rgba(15, 95, 58, 0.08),
+    0 2px 8px rgba(15, 23, 42, 0.04);
+  padding: 2rem;
+  border: 1px solid var(--border);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.field label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.row {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.row select,
+.row input[type='number'] {
+  flex: 1;
+  min-width: 0;
+  padding: 0.9rem 1rem;
+  font-size: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--text);
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.row select:focus,
+.row input[type='number']:focus {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px rgba(15, 95, 58, 0.1);
+}
+
+.swap {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  background: #f0fdf4;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--brand);
+  transition: all 0.15s;
+}
+
+.swap:hover {
+  background: var(--brand);
+  color: white;
+  border-color: var(--brand);
+  transform: rotate(180deg);
+}
+
+.result {
+  margin-top: 0.5rem;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+  border: 1px solid rgba(15, 95, 58, 0.15);
+  border-radius: 12px;
+  text-align: center;
+}
+
+.result-amount {
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: var(--brand);
+  margin: 0 0 0.25rem;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.result-rate {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.result-source {
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin: 0.5rem 0 0;
+  opacity: 0.8;
+}
+
+.loading {
+  text-align: center;
+  color: var(--muted);
+  padding: 1.5rem;
+  font-size: 0.95rem;
+}
+
+.error {
+  text-align: center;
+  color: var(--error);
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.footer {
+  max-width: 640px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.85rem;
+  line-height: 1.6;
+  padding: 1rem;
+}
+
+.footer a {
+  color: var(--brand);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.footer a:hover {
+  text-decoration: underline;
+}
+
+.code-block {
+  max-width: 640px;
+  width: 100%;
+  background: #0f172a;
+  color: #e2e8f0;
+  padding: 1.25rem 1.5rem;
+  border-radius: 12px;
+  font-family: 'SF Mono', Monaco, Consolas, monospace;
+  font-size: 0.8rem;
+  line-height: 1.7;
+  overflow-x: auto;
+  box-shadow: 0 10px 40px rgba(15, 23, 42, 0.15);
+}
+
+.code-block .keyword { color: #c084fc; }
+.code-block .string { color: #86efac; }
+.code-block .func { color: #7dd3fc; }
+.code-block .comment { color: #94a3b8; }
