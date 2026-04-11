@@ -1,5 +1,5 @@
 {
-  "name": "sdk-demo",
+  "name": "currency-converter",
   "version": "1.0.0",
   "description": "Live currency converter demo for @allratestoday/sdk — Next.js + Cloudflare Pages.",
   "private": true,

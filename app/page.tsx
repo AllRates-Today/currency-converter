@@ -40,7 +40,7 @@ export default function Home() {
         Built with <a href="https://www.npmjs.com/package/@allratestoday/sdk">@allratestoday/sdk</a>{' '}
         — data from{' '}
         <a href="https://allratestoday.com">AllRatesToday</a>.{' '}
-        <a href="https://github.com/allratestoday/sdk-demo">View source on GitHub</a>.
+        <a href="https://github.com/allratestoday/currency-converter">View source on GitHub</a>.
       </footer>
     </main>
   );

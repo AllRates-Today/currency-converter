@@ -2,18 +2,29 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Currency Converter — Powered by @allratestoday/sdk',
+  title: 'Currency Converter — Live Mid-Market Exchange Rates | AllRatesToday',
   description:
-    'Live mid-market currency conversion for 160+ currencies. Built with @allratestoday/sdk — the zero-dependency exchange rates SDK for Node.js and the browser.',
-  metadataBase: new URL('https://sdk-demo.allratestoday.com'),
+    'Free live currency converter for 160+ currencies. Real-time mid-market exchange rates from Reuters/Refinitiv. Built with @allratestoday/sdk — the zero-dependency exchange rates SDK for Node.js and the browser.',
+  keywords: [
+    'currency converter',
+    'exchange rate api',
+    'live currency rates',
+    'real-time exchange rates',
+    'mid-market rates',
+    'free currency api',
+    '@allratestoday/sdk',
+  ],
+  metadataBase: new URL('https://currency-converter.allratestoday.com'),
   openGraph: {
-    title: 'Currency Converter — @allratestoday/sdk demo',
+    title: 'Live Currency Converter — @allratestoday/sdk',
     description: 'Live mid-market exchange rates for 160+ currencies.',
     type: 'website',
+    url: 'https://currency-converter.allratestoday.com',
+    siteName: 'AllRatesToday Currency Converter',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Currency Converter — @allratestoday/sdk demo',
+    title: 'Live Currency Converter — @allratestoday/sdk',
     description: 'Live mid-market exchange rates for 160+ currencies.',
   },
 };

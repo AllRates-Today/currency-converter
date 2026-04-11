@@ -1,8 +1,8 @@
-# @allratestoday/sdk — Live Demo
+# Currency Converter — Live Demo of @allratestoday/sdk
 
 A minimal Next.js currency converter that showcases [`@allratestoday/sdk`](https://www.npmjs.com/package/@allratestoday/sdk), the real-time exchange rates SDK for 160+ currencies.
 
-**Live demo:** https://sdk-demo.allratestoday.com (once deployed)
+**Live demo:** https://currency-converter.allratestoday.com (once deployed)
 
 ## What this shows
 
@@ -49,7 +49,7 @@ This repo includes a GitHub Actions workflow that auto-deploys to Cloudflare Pag
 To enable:
 
 1. In Cloudflare dashboard: **Workers & Pages → Create → Pages → Direct Upload** (or connect to this GitHub repo)
-2. Set project name: `sdk-demo`
+2. Set project name: `currency-converter`
 3. Add these secrets to the GitHub repo (**Settings → Secrets and variables → Actions**):
    - `CLOUDFLARE_API_TOKEN` — [create one here](https://dash.cloudflare.com/profile/api-tokens) with the *Pages: Edit* template
    - `CLOUDFLARE_ACCOUNT_ID` — from the right sidebar of any Cloudflare page
