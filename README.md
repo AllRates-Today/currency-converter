@@ -1,5 +1,7 @@
 # Currency Converter — `@allratestoday/sdk` Reference Example
 
+[![Powered by AllRatesToday](https://img.shields.io/badge/Powered%20by-AllRatesToday-orange.svg)](https://allratestoday.com)
+
 A complete, copy-paste-ready Next.js currency converter built with [`@allratestoday/sdk`](https://www.npmjs.com/package/@allratestoday/sdk). Use this as a starting point for adding live exchange rates to your own website or app.
 
 ## What's inside
