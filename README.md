@@ -7,7 +7,7 @@ A complete, copy-paste-ready Next.js currency converter built with [`@allratesto
 ## What's inside
 
 - **Next.js 14 App Router** with TypeScript
-- **`@allratestoday/sdk`** for real-time mid-market rates (Reuters/Refinitiv data, 160+ currencies)
+- **`@allratestoday/sdk`** for real-time mid-market rates (institutional interbank market data, 160+ currencies)
 - **Client component** (`components/Converter.tsx`) showing the idiomatic `useEffect` + `new AllRatesToday()` pattern
 - **30 popular currencies** in a clean picker with flag emojis (the SDK itself supports 160+)
 - **Zero backend code** — runs entirely in the browser, so you can drop it into any static host

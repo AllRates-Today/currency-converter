@@ -4,7 +4,7 @@ import './globals.css';
 export const metadata: Metadata = {
   title: 'Currency Converter — Live Mid-Market Exchange Rates | AllRatesToday',
   description:
-    'Free live currency converter for 160+ currencies. Real-time mid-market exchange rates from Reuters/Refinitiv. Built with @allratestoday/sdk — the zero-dependency exchange rates SDK for Node.js and the browser.',
+    'Free live currency converter for 160+ currencies. Real-time mid-market exchange rates from institutional interbank market data. Built with @allratestoday/sdk — the zero-dependency exchange rates SDK for Node.js and the browser.',
   keywords: [
     'currency converter',
     'exchange rate api',
