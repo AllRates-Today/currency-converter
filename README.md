@@ -1,105 +1,123 @@
-# Currency Converter — `@allratestoday/sdk` Reference Example
+# Currency Converter — `currency-converter`
+
+A ready-to-run Next.js 14 currency converter app, built as the reference example for the [`@allratestoday/sdk`](https://www.npmjs.com/package/@allratestoday/sdk) npm package. Clone it, run it, or lift the single converter component into your own React app.
+
+This repo is an **example application**, not a published package — `package.json` is marked `private`, so there is nothing to `npm install` from here. Install the SDK instead.
 
 [![Powered by AllRatesToday](https://img.shields.io/badge/Powered%20by-AllRatesToday-orange.svg)](https://allratestoday.com)
+[![npm @allratestoday/sdk](https://img.shields.io/npm/v/@allratestoday/sdk?label=%40allratestoday%2Fsdk&color=cb3837)](https://www.npmjs.com/package/@allratestoday/sdk)
+[![Next.js](https://img.shields.io/badge/Next.js-14-black.svg)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.5-3178c6.svg)](https://www.typescriptlang.org/)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-A complete, copy-paste-ready Next.js currency converter built with [`@allratestoday/sdk`](https://www.npmjs.com/package/@allratestoday/sdk). Use this as a starting point for adding live exchange rates to your own website or app.
+## 🚀 Features
 
-## What's inside
+- ⚛️ **Next.js 14 App Router + TypeScript** — `app/layout.tsx`, `app/page.tsx`, `app/globals.css`
+- 🔁 **One self-contained client component** — `components/Converter.tsx` holds the whole converter: amount input, two currency pickers, a swap button, loading and error states
+- 💱 **Live rates via `@allratestoday/sdk`** — mid-market rates from institutional interbank market data
+- 🗂️ **30 currencies in the picker** — a curated subset with flag emojis; the SDK itself covers far more
+- 🧾 **`Intl.NumberFormat` output** — 2 decimals normally, 6 decimals for sub-1 rates
+- 🖥️ **No backend** — the fetch happens in the browser, so `next build` produces a static site
+- 🔑 **Runs without an API key** — the demo calls `new AllRatesToday()` with no arguments; add a key when you want higher limits
 
-- **Next.js 14 App Router** with TypeScript
-- **`@allratestoday/sdk`** for real-time mid-market rates (institutional interbank market data, 160+ currencies)
-- **Client component** (`components/Converter.tsx`) showing the idiomatic `useEffect` + `new AllRatesToday()` pattern
-- **30 popular currencies** in a clean picker with flag emojis (the SDK itself supports 160+)
-- **Zero backend code** — runs entirely in the browser, so you can drop it into any static host
-- **No API key required** for light usage; swap to `new AllRatesToday({ apiKey: '...' })` when you need higher limits
-
-## Quickstart
+## 📦 Installation
 
 ```bash
-git clone https://github.com/allratestoday/currency-converter.git
+git clone https://github.com/AllRates-Today/currency-converter.git
 cd currency-converter
 npm install
+```
+
+## 🏁 Quick start
+
+```bash
 npm run dev
 ```
 
-Opens at `http://localhost:3000`.
+Then open `http://localhost:3000`.
 
-## The SDK in 4 lines
+Other scripts defined in `package.json`:
 
-```ts
+| Script | What it does |
+|---|---|
+| `npm run dev` | Next.js dev server |
+| `npm run build` | Static export (`output: 'export'` in `next.config.js`) |
+| `npm run start` | Serve a production build |
+| `npm run lint` | `next lint` |
+
+`next.config.js` sets `output: 'export'`, `trailingSlash: true` and unoptimized images, so `npm run build` emits a fully static site you can host anywhere — Cloudflare Pages, Netlify, Vercel, GitHub Pages, S3.
+
+## 📚 The integration, in full
+
+This is the entire rate-fetching logic from `components/Converter.tsx`:
+
+```tsx
+'use client';
+import { useEffect, useMemo, useState } from 'react';
 import { AllRatesToday } from '@allratestoday/sdk';
 
-const client = new AllRatesToday();
-const result = await client.convert('USD', 'EUR', 100);
-console.log(result.result); // → 92.14
+const client = useMemo(() => new AllRatesToday(), []);
+
+useEffect(() => {
+  client
+    .convert(from, to, 1)
+    .then((result) => setRate(result.rate))
+    .catch((err) => setError(err.message));
+}, [client, from, to]);
 ```
 
-That's the whole integration. See `components/Converter.tsx` for how it's wired into React state.
+The component fetches the rate for **1 unit** and multiplies locally, so typing in the amount box does not trigger a new request — only changing a currency does. Requests are cancel-guarded with a `cancelled` flag in the effect cleanup.
 
-## How to adapt this for your project
+## 🔑 Get your API key
 
-### 1. Just copy the Converter component
+The demo runs keyless. To raise your limits, pass a key when constructing the client:
 
-`components/Converter.tsx` is self-contained — drop it into any React/Next.js app. Only dependencies are `@allratestoday/sdk` and React.
+```ts
+const client = new AllRatesToday({ apiKey: process.env.NEXT_PUBLIC_ALLRATES_API_KEY });
+```
+
+Free key: [allratestoday.com/register](https://allratestoday.com/register)
+
+> Anything in a client component ships to the browser. If you need to keep a key private, move the call into a server route and have the component fetch that route instead.
+
+## 💡 Reusing this in your own project
+
+**Copy the component.** `components/Converter.tsx` depends only on React and `@allratestoday/sdk` — no state library, no CSS framework, no props. Drop it in and add the class names it uses (`card`, `field`, `row`, `result`, …) or restyle it; the markup carries `aria-label`s for both selects and the swap button.
 
 ```bash
 npm install @allratestoday/sdk
 ```
 
-Then import `Converter` wherever you want to show it.
-
-### 2. Use the SDK directly (no React)
-
-Plain HTML + ES modules:
+**Or skip React entirely.** The SDK works as a plain ES module in the browser:
 
 ```html
 <script type="module">
   import { AllRatesToday } from 'https://esm.sh/@allratestoday/sdk';
   const client = new AllRatesToday();
-  const { result } = await client.convert('USD', 'EUR', 100);
-  document.getElementById('amount').textContent = result.toFixed(2);
+  const { rate } = await client.convert('USD', 'EUR', 1);
+  document.getElementById('rate').textContent = rate.toFixed(4);
 </script>
 ```
 
-### 3. Use it server-side (Next.js API route, Express, etc.)
+## 🗺️ Currencies covered
 
-```ts
-// app/api/rate/route.ts
-import { AllRatesToday } from '@allratestoday/sdk';
+The dropdown ships with these 30, each with a flag emoji (see the `CURRENCIES` array in `components/Converter.tsx`). Edit that array to add or remove entries — nothing else is coupled to it.
 
-const client = new AllRatesToday({ apiKey: process.env.ALLRATES_API_KEY });
+🇺🇸 `USD` · 🇪🇺 `EUR` · 🇬🇧 `GBP` · 🇯🇵 `JPY` · 🇨🇭 `CHF` · 🇨🇦 `CAD` · 🇦🇺 `AUD` · 🇳🇿 `NZD` · 🇨🇳 `CNY` · 🇮🇳 `INR` · 🇸🇬 `SGD` · 🇭🇰 `HKD` · 🇰🇷 `KRW` · 🇲🇽 `MXN` · 🇧🇷 `BRL` · 🇿🇦 `ZAR` · 🇸🇪 `SEK` · 🇳🇴 `NOK` · 🇩🇰 `DKK` · 🇵🇱 `PLN` · 🇹🇷 `TRY` · 🇦🇪 `AED` · 🇸🇦 `SAR` · 🇹🇭 `THB` · 🇮🇩 `IDR` · 🇲🇾 `MYR` · 🇵🇭 `PHP` · 🇻🇳 `VND` · 🇳🇬 `NGN` · 🇪🇬 `EGP`
 
-export async function GET() {
-  const data = await client.latest({ base: 'USD', symbols: ['EUR', 'GBP', 'JPY'] });
-  return Response.json(data);
-}
-```
+## 🛡️ Error handling
 
-## SDK methods used here
+A rejected `convert()` call is caught in the effect and rendered in a `role="alert"` block above the result, with the loading state cleared. The message shown is the SDK's own `Error.message`, falling back to `Failed to fetch rate` for non-`Error` throws. Nothing is retried automatically — changing a currency re-runs the effect.
 
-| Method | Purpose |
-|---|---|
-| `client.convert(from, to, amount)` | Convert a specific amount between two currencies |
-| `client.latest({ base, symbols })` | Batch fetch the latest rates for a base currency (not shown in this demo, but useful for dashboards) |
-| `client.forDate({ base, symbols, date })` | Historical rates for a specific date |
+## 🔗 Links
 
-Full API reference: https://www.npmjs.com/package/@allratestoday/sdk
+- **SDK on npm:** [@allratestoday/sdk](https://www.npmjs.com/package/@allratestoday/sdk)
+- **Website:** [allratestoday.com](https://allratestoday.com)
+- **API docs:** [allratestoday.com/docs](https://allratestoday.com/docs)
+- **Free API key:** [allratestoday.com/register](https://allratestoday.com/register)
+- **Status:** [allratestoday.com/status](https://allratestoday.com/status)
+- **Support:** [allratestoday.com/contact](https://allratestoday.com/contact)
 
-## Production build
+## 📜 License
 
-```bash
-npm run build
-```
-
-Outputs a fully static site to `./out/` — deployable to any static host (Cloudflare Pages, Netlify, Vercel, GitHub Pages, S3, etc.).
-
-## Links
-
-- **SDK on npm:** https://www.npmjs.com/package/@allratestoday/sdk
-- **SDK source:** https://github.com/allratestoday/exchange-rates-api
-- **API docs:** https://allratestoday.com/docs
-- **Get a free API key:** https://allratestoday.com/register
-
-## License
-
-MIT — use, fork, remix, ship.
+MIT — see [LICENSE](LICENSE).
