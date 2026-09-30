@@ -14,7 +14,7 @@ This repo is an **example application**, not a published package — `package.js
 
 - ⚛️ **Next.js 14 App Router + TypeScript** — `app/layout.tsx`, `app/page.tsx`, `app/globals.css`
 - 🔁 **One self-contained client component** — `components/Converter.tsx` holds the whole converter: amount input, two currency pickers, a swap button, loading and error states
-- 💱 **Live rates via `@allratestoday/sdk`** — mid-market rates from institutional interbank market data
+- 💱 **Live rates via `@allratestoday/sdk`** — mid-market rates with no retail spread
 - 🗂️ **30 currencies in the picker** — a curated subset with flag emojis; the SDK itself covers far more
 - 🧾 **`Intl.NumberFormat` output** — 2 decimals normally, 6 decimals for sub-1 rates
 - 🖥️ **No backend** — the fetch happens in the browser, so `next build` produces a static site
