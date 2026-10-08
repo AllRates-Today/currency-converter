@@ -117,6 +117,8 @@ A rejected `convert()` call is caught in the effect and rendered in a `role="ale
 - **Free API key:** [allratestoday.com/register](https://allratestoday.com/register)
 - **Status:** [allratestoday.com/status](https://allratestoday.com/status)
 - **Support:** [allratestoday.com/contact](https://allratestoday.com/contact)
+- **AI agents:** Claude Code plugin `/plugin marketplace add AllRates-Today/claude-code-plugin` · hosted MCP endpoint `https://allratestoday.com/api/mcp` (keyless)
+
 
 ## 📜 License
 
