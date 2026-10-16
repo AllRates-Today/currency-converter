@@ -6,7 +6,9 @@ import { AllRatesToday } from '@allratestoday/sdk';
 // With NEXT_PUBLIC_ALLRATES_API_KEY set, rates come from @allratestoday/sdk
 // (real-time mid-market, 160+ currencies). Without it, the demo uses the
 // keyless, CORS-open ECB table and computes every pair via EUR.
-// Anything NEXT_PUBLIC_ ships to the browser, so treat that key as public.
+// Anything NEXT_PUBLIC_ ships to the browser, so treat that key as public, and
+// the keyed /api/v1 endpoints send no CORS headers, so browsers block that path:
+// for a keyed deployment call the SDK from a server route instead.
 const API_KEY = process.env.NEXT_PUBLIC_ALLRATES_API_KEY;
 const OPEN_ECB_URL = 'https://allratestoday.com/api/open/central-bank/ecb';
 
@@ -91,7 +93,7 @@ export default function Converter() {
           const f = table.perEur[from];
           const t = table.perEur[to];
           if (f === undefined || t === undefined) {
-            throw new Error(`${from}/${to} is not on the ECB table. Add an API key for 160+ currencies.`);
+            throw new Error(`${from}/${to} is not on the ECB table. 160+ currencies need an API key, called from a server route.`);
           }
           return t / f;
         });

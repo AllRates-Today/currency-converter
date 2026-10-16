@@ -14,11 +14,11 @@ This repo is an **example application**, not a published package — `package.js
 
 - ⚛️ **Next.js 14 App Router + TypeScript** — `app/layout.tsx`, `app/page.tsx`, `app/globals.css`
 - 🔁 **One self-contained client component** — `components/Converter.tsx` holds the whole converter: amount input, two currency pickers, a swap button, loading and error states
-- 💱 **Two rate sources** — keyless by default (official ECB reference rates from the open, CORS-enabled `/api/open/central-bank/ecb` table, every pair computed via EUR); with a key, real-time mid-market rates via `@allratestoday/sdk`
+- 💱 **Two rate sources** — keyless by default (official ECB reference rates from the open, CORS-enabled `/api/open/central-bank/ecb` table, every pair computed via EUR); with a key, real-time mid-market rates via `@allratestoday/sdk` from a server route (the keyed API sends no CORS headers, see below)
 - 🗂️ **30 currencies in the picker** — a curated subset with flag emojis; keyless mode shows the 25 of them on the ECB table, and the SDK itself covers 160+
 - 🧾 **`Intl.NumberFormat` output** — 2 decimals normally, 6 decimals for sub-1 rates
 - 🖥️ **No backend** — the fetch happens in the browser, so `next build` produces a static site
-- 🔑 **Runs without an API key** — the SDK requires a key, so with none set the demo reads the open ECB table directly; set `NEXT_PUBLIC_ALLRATES_API_KEY` to switch to the SDK
+- 🔑 **Runs without an API key** — the SDK requires a key, so with none set the demo reads the open ECB table directly; setting `NEXT_PUBLIC_ALLRATES_API_KEY` switches to the SDK path, which a browser blocks (no CORS on the keyed API) — move it to a server route for a keyed deployment
 
 ## 📦 Installation
 
