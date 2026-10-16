@@ -3,8 +3,31 @@
 import { useEffect, useMemo, useState } from 'react';
 import { AllRatesToday } from '@allratestoday/sdk';
 
+// With NEXT_PUBLIC_ALLRATES_API_KEY set, rates come from @allratestoday/sdk
+// (real-time mid-market, 160+ currencies). Without it, the demo uses the
+// keyless, CORS-open ECB table and computes every pair via EUR.
+// Anything NEXT_PUBLIC_ ships to the browser, so treat that key as public.
+const API_KEY = process.env.NEXT_PUBLIC_ALLRATES_API_KEY;
+const OPEN_ECB_URL = 'https://allratestoday.com/api/open/central-bank/ecb';
+
+type EcbTable = { date: string; perEur: Record<string, number> };
+
+/** Fetch the open ECB table once: units of each currency per 1 EUR (EUR = 1). */
+async function fetchEcbTable(): Promise<EcbTable> {
+  const res = await fetch(OPEN_ECB_URL);
+  if (!res.ok) throw new Error(`ECB endpoint responded ${res.status}`);
+  const data: { rate_date?: string; rates?: { base: string; quote: string; value: number }[] } =
+    await res.json();
+  const perEur: Record<string, number> = { EUR: 1 };
+  for (const r of data.rates ?? []) {
+    if (r.base === 'EUR' && r.value > 0) perEur[r.quote] = r.value;
+  }
+  return { date: data.rate_date ?? '', perEur };
+}
+
 // Small curated list of popular currencies. The SDK supports 160+; this list
-// keeps the dropdown readable for a demo.
+// keeps the dropdown readable for a demo. Keyless mode shows only the codes
+// on the ECB table.
 const CURRENCIES: Array<{ code: string; name: string; flag: string }> = [
   { code: 'USD', name: 'US Dollar', flag: '🇺🇸' },
   { code: 'EUR', name: 'Euro', flag: '🇪🇺' },
@@ -45,8 +68,14 @@ export default function Converter() {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [rate, setRate] = useState<number | null>(null);
+  const [ecb, setEcb] = useState<EcbTable | null>(null);
 
-  const client = useMemo(() => new AllRatesToday(), []);
+  const client = useMemo(() => (API_KEY ? new AllRatesToday({ apiKey: API_KEY }) : null), []);
+  const ecbTable = useMemo(() => (API_KEY ? null : fetchEcbTable()), []);
+  const currencies = useMemo(
+    () => (ecb ? CURRENCIES.filter((c) => c.code in ecb.perEur) : CURRENCIES),
+    [ecb],
+  );
   const numericAmount = parseFloat(amount) || 0;
   const converted = rate !== null ? numericAmount * rate : null;
 
@@ -55,11 +84,22 @@ export default function Converter() {
     setLoading(true);
     setError(null);
 
-    client
-      .convert(from, to, 1)
-      .then((result) => {
+    const getRate: Promise<number> = client
+      ? client.convert(from, to, 1).then((result) => result.rate)
+      : ecbTable!.then((table) => {
+          if (!cancelled) setEcb(table);
+          const f = table.perEur[from];
+          const t = table.perEur[to];
+          if (f === undefined || t === undefined) {
+            throw new Error(`${from}/${to} is not on the ECB table. Add an API key for 160+ currencies.`);
+          }
+          return t / f;
+        });
+
+    getRate
+      .then((value) => {
         if (cancelled) return;
-        setRate(result.rate);
+        setRate(value);
         setLoading(false);
       })
       .catch((err) => {
@@ -71,7 +111,7 @@ export default function Converter() {
     return () => {
       cancelled = true;
     };
-  }, [client, from, to]);
+  }, [client, ecbTable, from, to]);
 
   const swap = () => {
     setFrom(to);
@@ -109,7 +149,7 @@ export default function Converter() {
             onChange={(e) => setFrom(e.target.value)}
             aria-label="From currency"
           >
-            {CURRENCIES.map((c) => (
+            {currencies.map((c) => (
               <option key={c.code} value={c.code}>
                 {c.flag} {c.code} — {c.name}
               </option>
@@ -145,7 +185,7 @@ export default function Converter() {
             onChange={(e) => setTo(e.target.value)}
             aria-label="To currency"
           >
-            {CURRENCIES.map((c) => (
+            {currencies.map((c) => (
               <option key={c.code} value={c.code}>
                 {c.flag} {c.code} — {c.name}
               </option>
@@ -154,7 +194,7 @@ export default function Converter() {
         </div>
       </div>
 
-      {loading && <p className="loading">Fetching live rate…</p>}
+      {loading && <p className="loading">{client ? 'Fetching live rate…' : 'Fetching ECB rate…'}</p>}
 
       {error && (
         <div className="error" role="alert">
@@ -170,7 +210,17 @@ export default function Converter() {
           <p className="result-rate">
             1 {from} = {formatMoney(rate)} {to}
           </p>
-          <p className="result-source">Mid-market rate · via AllRatesToday</p>
+          <p className="result-source">
+            {client ? (
+              'Mid-market rate · via AllRatesToday'
+            ) : (
+              <>
+                ECB reference rate{ecb?.date ? ` for ${ecb.date}` : ''}
+                {from !== 'EUR' && to !== 'EUR' ? ' (cross via EUR)' : ''} ·{' '}
+                <a href="https://allratestoday.com/central-bank-rates-api/ecb/">via AllRatesToday</a>
+              </>
+            )}
+          </p>
         </div>
       )}
     </div>

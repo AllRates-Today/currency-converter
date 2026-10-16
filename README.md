@@ -14,11 +14,11 @@ This repo is an **example application**, not a published package — `package.js
 
 - ⚛️ **Next.js 14 App Router + TypeScript** — `app/layout.tsx`, `app/page.tsx`, `app/globals.css`
 - 🔁 **One self-contained client component** — `components/Converter.tsx` holds the whole converter: amount input, two currency pickers, a swap button, loading and error states
-- 💱 **Live rates via `@allratestoday/sdk`** — mid-market rates with no retail spread
-- 🗂️ **30 currencies in the picker** — a curated subset with flag emojis; the SDK itself covers far more
+- 💱 **Two rate sources** — keyless by default (official ECB reference rates from the open, CORS-enabled `/api/open/central-bank/ecb` table, every pair computed via EUR); with a key, real-time mid-market rates via `@allratestoday/sdk`
+- 🗂️ **30 currencies in the picker** — a curated subset with flag emojis; keyless mode shows the 25 of them on the ECB table, and the SDK itself covers 160+
 - 🧾 **`Intl.NumberFormat` output** — 2 decimals normally, 6 decimals for sub-1 rates
 - 🖥️ **No backend** — the fetch happens in the browser, so `next build` produces a static site
-- 🔑 **Runs without an API key** — the demo calls `new AllRatesToday()` with no arguments; add a key when you want higher limits
+- 🔑 **Runs without an API key** — the SDK requires a key, so with none set the demo reads the open ECB table directly; set `NEXT_PUBLIC_ALLRATES_API_KEY` to switch to the SDK
 
 ## 📦 Installation
 
@@ -49,65 +49,77 @@ Other scripts defined in `package.json`:
 
 ## 📚 The integration, in full
 
-This is the entire rate-fetching logic from `components/Converter.tsx`:
+This is the rate-fetching logic from `components/Converter.tsx`, simplified:
 
 ```tsx
 'use client';
-import { useEffect, useMemo, useState } from 'react';
 import { AllRatesToday } from '@allratestoday/sdk';
 
-const client = useMemo(() => new AllRatesToday(), []);
+const API_KEY = process.env.NEXT_PUBLIC_ALLRATES_API_KEY;
+
+// Keyless: one request for the whole ECB table, { rate_date, rates: [{ base: 'EUR', quote, value }] }
+async function fetchEcbTable() {
+  const data = await (await fetch('https://allratestoday.com/api/open/central-bank/ecb')).json();
+  const perEur = { EUR: 1 };
+  for (const r of data.rates) perEur[r.quote] = r.value;
+  return { date: data.rate_date, perEur };
+}
+
+const client = useMemo(() => (API_KEY ? new AllRatesToday({ apiKey: API_KEY }) : null), []);
+const ecbTable = useMemo(() => (API_KEY ? null : fetchEcbTable()), []);
 
 useEffect(() => {
-  client
-    .convert(from, to, 1)
-    .then((result) => setRate(result.rate))
-    .catch((err) => setError(err.message));
-}, [client, from, to]);
+  const getRate = client
+    ? client.convert(from, to, 1).then((r) => r.rate)           // real-time mid-market
+    : ecbTable.then((t) => t.perEur[to] / t.perEur[from]);     // ECB, cross via EUR
+  getRate.then(setRate).catch((err) => setError(err.message));
+}, [client, ecbTable, from, to]);
 ```
+
+In keyless mode the ECB table is fetched once per page load and every pair is computed from it (USD→GBP = EUR→GBP ÷ EUR→USD); the result line shows the ECB `rate_date` and marks cross rates. The open endpoint is free to use with a visible attribution link, which the result line carries.
 
 The component fetches the rate for **1 unit** and multiplies locally, so typing in the amount box does not trigger a new request — only changing a currency does. Requests are cancel-guarded with a `cancelled` flag in the effect cleanup.
 
 ## 🔑 Get your API key
 
-The demo runs keyless. To raise your limits, pass a key when constructing the client:
+The demo runs keyless on ECB reference rates (~30 currencies, updated each ECB business day). For real-time mid-market rates across 160+ currencies you need a key; `@allratestoday/sdk` 1.4+ rejects calls without one (`API key is required`).
 
 ```ts
-const client = new AllRatesToday({ apiKey: process.env.NEXT_PUBLIC_ALLRATES_API_KEY });
+const client = new AllRatesToday({ apiKey: process.env.ALLRATES_API_KEY });
 ```
 
-Free key: [allratestoday.com/register](https://allratestoday.com/register)
+Free key: [allratestoday.com/register](https://allratestoday.com/register) (300 requests total, no card). Send it as `Authorization: Bearer <key>`, which the SDK does for you.
 
-> Anything in a client component ships to the browser. If you need to keep a key private, move the call into a server route and have the component fetch that route instead.
+> The keyed `/api/v1` endpoints are meant to be called from a server: they do not send CORS headers, so a browser blocks them, and anything in a client component (including a `NEXT_PUBLIC_` key) ships to the browser anyway. In this static export, setting `NEXT_PUBLIC_ALLRATES_API_KEY` switches the component to the SDK path, but for a working keyed deployment move the `convert()` call into a server route and have the component fetch that route. [`nextjs-currency-starter`](https://github.com/AllRates-Today/nextjs-currency-starter) does exactly that.
 
 ## 💡 Reusing this in your own project
 
-**Copy the component.** `components/Converter.tsx` depends only on React and `@allratestoday/sdk` — no state library, no CSS framework, no props. Drop it in and add the class names it uses (`card`, `field`, `row`, `result`, …) or restyle it; the markup carries `aria-label`s for both selects and the swap button.
+**Copy the component.** `components/Converter.tsx` depends only on React and `@allratestoday/sdk` (the keyless path needs only `fetch`) — no state library, no CSS framework, no props. Drop it in and add the class names it uses (`card`, `field`, `row`, `result`, …) or restyle it; the markup carries `aria-label`s for both selects and the swap button.
 
 ```bash
 npm install @allratestoday/sdk
 ```
 
-**Or skip React entirely.** The SDK works as a plain ES module in the browser:
+**Or skip React entirely.** The keyless ECB table works from plain browser JavaScript:
 
 ```html
 <script type="module">
-  import { AllRatesToday } from 'https://esm.sh/@allratestoday/sdk';
-  const client = new AllRatesToday();
-  const { rate } = await client.convert('USD', 'EUR', 1);
-  document.getElementById('rate').textContent = rate.toFixed(4);
+  const { rates } = await (await fetch('https://allratestoday.com/api/open/central-bank/ecb')).json();
+  const perEur = Object.fromEntries(rates.map((r) => [r.quote, r.value]));
+  const usdToGbp = perEur.GBP / perEur.USD; // cross via EUR
+  document.getElementById('rate').textContent = usdToGbp.toFixed(4);
 </script>
 ```
 
 ## 🗺️ Currencies covered
 
-The dropdown ships with these 30, each with a flag emoji (see the `CURRENCIES` array in `components/Converter.tsx`). Edit that array to add or remove entries — nothing else is coupled to it.
+The dropdown ships with these 30, each with a flag emoji (see the `CURRENCIES` array in `components/Converter.tsx`). Edit that array to add or remove entries — nothing else is coupled to it. In keyless mode the picker is filtered to the codes on the live ECB table, so `AED`, `SAR`, `VND`, `NGN` and `EGP` appear only with a key.
 
 🇺🇸 `USD` · 🇪🇺 `EUR` · 🇬🇧 `GBP` · 🇯🇵 `JPY` · 🇨🇭 `CHF` · 🇨🇦 `CAD` · 🇦🇺 `AUD` · 🇳🇿 `NZD` · 🇨🇳 `CNY` · 🇮🇳 `INR` · 🇸🇬 `SGD` · 🇭🇰 `HKD` · 🇰🇷 `KRW` · 🇲🇽 `MXN` · 🇧🇷 `BRL` · 🇿🇦 `ZAR` · 🇸🇪 `SEK` · 🇳🇴 `NOK` · 🇩🇰 `DKK` · 🇵🇱 `PLN` · 🇹🇷 `TRY` · 🇦🇪 `AED` · 🇸🇦 `SAR` · 🇹🇭 `THB` · 🇮🇩 `IDR` · 🇲🇾 `MYR` · 🇵🇭 `PHP` · 🇻🇳 `VND` · 🇳🇬 `NGN` · 🇪🇬 `EGP`
 
 ## 🛡️ Error handling
 
-A rejected `convert()` call is caught in the effect and rendered in a `role="alert"` block above the result, with the loading state cleared. The message shown is the SDK's own `Error.message`, falling back to `Failed to fetch rate` for non-`Error` throws. Nothing is retried automatically — changing a currency re-runs the effect.
+A rejected `convert()` call (or a failed ECB fetch, or a pair missing from the ECB table) is caught in the effect and rendered in a `role="alert"` block above the result, with the loading state cleared. The message shown is the error's own `Error.message`, falling back to `Failed to fetch rate` for non-`Error` throws. Nothing is retried automatically — changing a currency re-runs the effect.
 
 ## 🔗 Links
 

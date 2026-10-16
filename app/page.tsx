@@ -9,8 +9,8 @@ export default function Home() {
           Live currency <span className="accent">converter</span>
         </h1>
         <p>
-          Real-time mid-market exchange rates for 160+ currencies. Zero
-          dependencies. Works in Node.js and the browser.
+          Real-time mid-market exchange rates for 160+ currencies with a free
+          key, or official ECB reference rates with no key at all.
         </p>
       </section>
 
@@ -25,14 +25,14 @@ export default function Home() {
           <span className="string">&apos;@allratestoday/sdk&apos;</span>;{'\n\n'}
           <span className="keyword">const</span> client ={' '}
           <span className="keyword">new</span>{' '}
-          <span className="func">AllRatesToday</span>();{'\n'}
+          <span className="func">AllRatesToday</span>({'{ '}apiKey: <span className="string">&apos;YOUR_KEY&apos;</span>{' }'});{'\n'}
           <span className="keyword">const</span> result ={' '}
           <span className="keyword">await</span> client.
           <span className="func">convert</span>(
           <span className="string">&apos;USD&apos;</span>,{' '}
           <span className="string">&apos;EUR&apos;</span>, 100);{'\n'}
-          console.<span className="func">log</span>(result.to.amount);{' '}
-          <span className="comment">{'// → 92.14'}</span>
+          console.<span className="func">log</span>(result.result);{' '}
+          <span className="comment">{'// → 89.22'}</span>
         </code>
       </pre>
 
