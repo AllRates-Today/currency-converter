@@ -131,6 +131,8 @@ A rejected `convert()` call (or a failed ECB fetch, or a pair missing from the E
 - **Support:** [allratestoday.com/contact](https://allratestoday.com/contact)
 - **AI agents:** Claude Code plugin `/plugin marketplace add AllRates-Today/claude-code-plugin` · hosted MCP endpoint `https://allratestoday.com/api/mcp` (keyless)
 - **New in Oct 2026:** agents can self-issue a trial key — `POST https://allratestoday.com/api/agent/keys` (JSON) → 100 calls / 7 days — and read the keyless [Daily Reference Rate](https://allratestoday.com/reference-rate/) (16:00 London fix) at `https://allratestoday.com/api/open/reference-rate`
+- **Dashboard:** [allratestoday.com/profile](https://allratestoday.com/profile)
+- **GitHub:** [github.com/AllRates-Today/currency-converter](https://github.com/AllRates-Today/currency-converter)
 
 
 ## 📜 License
