@@ -88,7 +88,7 @@ The demo runs keyless on ECB reference rates (~30 currencies, updated each ECB b
 const client = new AllRatesToday({ apiKey: process.env.ALLRATES_API_KEY });
 ```
 
-Free key: [allratestoday.com/register](https://allratestoday.com/register) (300 requests total, no card). Send it as `Authorization: Bearer <key>`, which the SDK does for you.
+Free key: [allratestoday.com/register](https://allratestoday.com/register) (no card required). Send it as `Authorization: Bearer <key>`, which the SDK does for you.
 
 > The keyed `/api/v1` endpoints are meant to be called from a server: they do not send CORS headers, so a browser blocks them, and anything in a client component (including a `NEXT_PUBLIC_` key) ships to the browser anyway. In this static export, setting `NEXT_PUBLIC_ALLRATES_API_KEY` switches the component to the SDK path, but for a working keyed deployment move the `convert()` call into a server route and have the component fetch that route. [`nextjs-currency-starter`](https://github.com/AllRates-Today/nextjs-currency-starter) does exactly that.
 
